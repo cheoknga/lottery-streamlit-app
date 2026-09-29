@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Sep 27 22:15:57 2026
 
-@author: user
-"""
+# -*- coding: utf-8 -*-
+
 import random
 import streamlit as st
 
@@ -55,6 +52,7 @@ st.markdown(
         width: 58px;
         height: 58px;
         border-radius: 50%;
+
         display: flex;
         align-items: center;
         justify-content: center;
@@ -73,6 +71,7 @@ st.markdown(
         width: 64px;
         height: 64px;
         border-radius: 50%;
+
         display: flex;
         align-items: center;
         justify-content: center;
@@ -120,7 +119,7 @@ def show_balls(numbers):
 
 
 # ==============================
-# 4. 顯示特別球函數
+# 4. 顯示威力彩第二區特別球
 # ==============================
 def show_special_ball(number):
 
@@ -137,7 +136,24 @@ def show_special_ball(number):
 
 
 # ==============================
-# 5. 主標題
+# 5. 建立 Session State
+# ==============================
+
+# 大樂透結果
+if "lotto_numbers" not in st.session_state:
+    st.session_state.lotto_numbers = None
+
+# 威力彩第一區
+if "power_first" not in st.session_state:
+    st.session_state.power_first = None
+
+# 威力彩第二區
+if "power_second" not in st.session_state:
+    st.session_state.power_second = None
+
+
+# ==============================
+# 6. 主標題
 # ==============================
 st.markdown(
     '<div class="main-title">🎱 樂透選號系統</div>',
@@ -151,13 +167,13 @@ st.markdown(
 
 
 # ==============================
-# 6. 建立兩欄按鈕
+# 7. 建立三欄按鈕
 # ==============================
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 
 # ==============================
-# 7. 大樂透按鈕
+# 8. 大樂透按鈕
 # ==============================
 with col1:
 
@@ -168,7 +184,7 @@ with col1:
 
 
 # ==============================
-# 8. 威力彩按鈕
+# 9. 威力彩按鈕
 # ==============================
 with col2:
 
@@ -179,45 +195,92 @@ with col2:
 
 
 # ==============================
-# 9. 大樂透抽號
+# 10. 清除按鈕
+# ==============================
+with col3:
+
+    clear_button = st.button(
+        "清除",
+        use_container_width=True
+    )
+
+
+# ==============================
+# 11. 大樂透抽號
 # ==============================
 if lotto_button:
 
-    lotto_numbers = sorted(
+    st.session_state.lotto_numbers = sorted(
         random.sample(range(1, 50), 6)
     )
+
+    # 清除威力彩舊結果
+    st.session_state.power_first = None
+    st.session_state.power_second = None
+
+
+# ==============================
+# 12. 威力彩抽號
+# ==============================
+if power_button:
+
+    # 第一區：1~38 抽 6 個
+    st.session_state.power_first = sorted(
+        random.sample(range(1, 39), 6)
+    )
+
+    # 第二區：1~8 抽 1 個
+    st.session_state.power_second = random.randint(1, 8)
+
+    # 清除大樂透舊結果
+    st.session_state.lotto_numbers = None
+
+
+# ==============================
+# 13. 清除所有結果
+# ==============================
+if clear_button:
+
+    st.session_state.lotto_numbers = None
+    st.session_state.power_first = None
+    st.session_state.power_second = None
+
+
+# ==============================
+# 14. 顯示大樂透結果
+# ==============================
+if st.session_state.lotto_numbers is not None:
 
     st.markdown(
         '<div class="section-title">大樂透號碼</div>',
         unsafe_allow_html=True
     )
 
-    show_balls(lotto_numbers)
-
-
-# ==============================
-# 10. 威力彩抽號
-# ==============================
-if power_button:
-
-    # 第一區：1~38 抽 6 個
-    first_area = sorted(
-        random.sample(range(1, 39), 6)
+    show_balls(
+        st.session_state.lotto_numbers
     )
 
-    # 第二區：1~8 抽 1 個
-    second_area = random.randint(1, 8)
+
+# ==============================
+# 15. 顯示威力彩結果
+# ==============================
+if st.session_state.power_first is not None:
 
     st.markdown(
         '<div class="section-title">威力彩第一區</div>',
         unsafe_allow_html=True
     )
 
-    show_balls(first_area)
+    show_balls(
+        st.session_state.power_first
+    )
 
     st.markdown(
         '<div class="section-title">威力彩第二區</div>',
         unsafe_allow_html=True
     )
 
-    show_special_ball(second_area)
+    show_special_ball(
+        st.session_state.power_second
+    )
+
